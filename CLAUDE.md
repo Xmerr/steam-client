@@ -155,6 +155,15 @@ All public methods require JSDoc with:
 
 See SPEC.md:449-469 for JSDoc example.
 
+## Git Commit Guidelines
+
+When creating git commits:
+- Write clear, concise commit messages that focus on what changed and why
+- Do NOT include "Claude Code" or similar AI tool references in commit messages
+- Do NOT add "Generated with Claude Code" or "Co-Authored-By: Claude" footers
+- Keep commit messages professional and focused on the technical changes
+- Follow conventional commit format when appropriate (feat:, fix:, docs:, etc.)
+
 ## Performance Targets
 
 - Search latency: < 100ms with warm cache
