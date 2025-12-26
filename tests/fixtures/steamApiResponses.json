@@ -1,0 +1,193 @@
+{
+  "cyberpunk2077": {
+    "1091500": {
+      "success": true,
+      "data": {
+        "type": "game",
+        "name": "Cyberpunk 2077",
+        "steam_appid": 1091500,
+        "required_age": 17,
+        "is_free": false,
+        "detailed_description": "Cyberpunk 2077 is an open-world, action-adventure RPG set in the megalopolis of Night City...",
+        "short_description": "Cyberpunk 2077 is an open-world, action-adventure RPG...",
+        "header_image": "https://cdn.akamai.steamstatic.com/steam/apps/1091500/header.jpg",
+        "developers": ["CD PROJEKT RED"],
+        "publishers": ["CD PROJEKT RED"],
+        "price_overview": {
+          "currency": "USD",
+          "initial": 5999,
+          "final": 5999,
+          "discount_percent": 0,
+          "initial_formatted": "$59.99",
+          "final_formatted": "$59.99"
+        },
+        "release_date": {
+          "coming_soon": false,
+          "date": "Dec 10, 2020"
+        },
+        "categories": [
+          { "id": 2, "description": "Single-player" },
+          { "id": 22, "description": "Steam Achievements" }
+        ],
+        "genres": [
+          { "id": "1", "description": "Action" },
+          { "id": "25", "description": "Adventure" },
+          { "id": "23", "description": "Indie" }
+        ],
+        "screenshots": [
+          {
+            "id": 0,
+            "path_thumbnail": "https://cdn.akamai.steamstatic.com/steam/apps/1091500/ss_1.jpg",
+            "path_full": "https://cdn.akamai.steamstatic.com/steam/apps/1091500/ss_1_full.jpg"
+          },
+          {
+            "id": 1,
+            "path_thumbnail": "https://cdn.akamai.steamstatic.com/steam/apps/1091500/ss_2.jpg",
+            "path_full": "https://cdn.akamai.steamstatic.com/steam/apps/1091500/ss_2_full.jpg"
+          },
+          {
+            "id": 2,
+            "path_thumbnail": "https://cdn.akamai.steamstatic.com/steam/apps/1091500/ss_3.jpg",
+            "path_full": "https://cdn.akamai.steamstatic.com/steam/apps/1091500/ss_3_full.jpg"
+          }
+        ],
+        "metacritic": {
+          "score": 86,
+          "url": "https://www.metacritic.com/game/pc/cyberpunk-2077"
+        },
+        "recommendations": {
+          "total": 450000
+        },
+        "content_descriptors": {
+          "ids": [1, 2],
+          "notes": "This game contains violence and strong language"
+        }
+      }
+    }
+  },
+  "dota2": {
+    "570": {
+      "success": true,
+      "data": {
+        "type": "game",
+        "name": "Dota 2",
+        "steam_appid": 570,
+        "required_age": 0,
+        "is_free": true,
+        "detailed_description": "Every day, millions of players worldwide enter the battle as one of over a hundred Dota Heroes...",
+        "short_description": "Every day, millions of players worldwide enter battle as one of over a hundred Dota heroes.",
+        "header_image": "https://cdn.akamai.steamstatic.com/steam/apps/570/header.jpg",
+        "developers": ["Valve"],
+        "publishers": ["Valve"],
+        "release_date": {
+          "coming_soon": false,
+          "date": "Jul 9, 2013"
+        },
+        "categories": [
+          { "id": 1, "description": "Multi-player" },
+          { "id": 36, "description": "Online Multi-Player" }
+        ],
+        "genres": [
+          { "id": "1", "description": "Action" },
+          { "id": "23", "description": "Indie" },
+          { "id": "2", "description": "Strategy" }
+        ],
+        "screenshots": [
+          {
+            "id": 0,
+            "path_thumbnail": "https://cdn.akamai.steamstatic.com/steam/apps/570/ss_1.jpg",
+            "path_full": "https://cdn.akamai.steamstatic.com/steam/apps/570/ss_1_full.jpg"
+          }
+        ],
+        "recommendations": {
+          "total": 1500000
+        },
+        "content_descriptors": {
+          "ids": [],
+          "notes": null
+        }
+      }
+    }
+  },
+  "adultGame": {
+    "1234567": {
+      "success": true,
+      "data": {
+        "type": "game",
+        "name": "Adult Only Game",
+        "steam_appid": 1234567,
+        "required_age": 18,
+        "is_free": false,
+        "detailed_description": "An adult-only game...",
+        "short_description": "Adult content game",
+        "header_image": "https://cdn.akamai.steamstatic.com/steam/apps/1234567/header.jpg",
+        "developers": ["Adult Dev"],
+        "publishers": ["Adult Pub"],
+        "price_overview": {
+          "currency": "USD",
+          "initial": 1999,
+          "final": 1999,
+          "discount_percent": 0,
+          "initial_formatted": "$19.99",
+          "final_formatted": "$19.99"
+        },
+        "release_date": {
+          "coming_soon": false,
+          "date": "Jan 1, 2023"
+        },
+        "categories": [
+          { "id": 2, "description": "Single-player" },
+          { "id": 99, "description": "Adult Only Content" }
+        ],
+        "genres": [
+          { "id": "25", "description": "Adventure" }
+        ],
+        "screenshots": [],
+        "content_descriptors": {
+          "ids": [3],
+          "notes": "This game contains adult only sexual content"
+        }
+      }
+    }
+  },
+  "dlc": {
+    "1234568": {
+      "success": true,
+      "data": {
+        "type": "dlc",
+        "name": "Game DLC",
+        "steam_appid": 1234568,
+        "required_age": 0,
+        "is_free": false,
+        "detailed_description": "DLC content...",
+        "short_description": "Additional content",
+        "header_image": "https://cdn.akamai.steamstatic.com/steam/apps/1234568/header.jpg",
+        "developers": ["Dev"],
+        "publishers": ["Pub"],
+        "price_overview": {
+          "currency": "USD",
+          "initial": 999,
+          "final": 999,
+          "discount_percent": 0,
+          "initial_formatted": "$9.99",
+          "final_formatted": "$9.99"
+        },
+        "release_date": {
+          "coming_soon": false,
+          "date": "Jun 15, 2023"
+        },
+        "categories": [],
+        "genres": [],
+        "screenshots": [],
+        "content_descriptors": {
+          "ids": []
+        }
+      }
+    }
+  },
+  "notFound": {
+    "9999999": {
+      "success": false
+    }
+  }
+}
