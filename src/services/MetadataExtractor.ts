@@ -1,6 +1,7 @@
 import { SteamGameDetails } from '../types/SteamGameDetails';
 import { EnrichedGameData, Rating, SteamRating } from '../types/EnrichedGameData';
 import { PriceFormatter } from '../utils/PriceFormatter';
+import { ReviewStats } from '../infrastructure/ApiClient';
 
 /**
  * Default maximum number of screenshots to extract
@@ -18,16 +19,17 @@ export class MetadataExtractor {
    * with formatted prices, URLs, and combined category/genre lists.
    *
    * @param details - Full Steam game details from API
+   * @param reviewStats - Optional review statistics from Steam Reviews API
    * @returns Simplified enriched game data
    *
    * @example
    * ```typescript
    * const extractor = new MetadataExtractor();
-   * const enriched = extractor.extractMetadata(steamDetails);
+   * const enriched = extractor.extractMetadata(steamDetails, reviewStats);
    * console.log(enriched.price); // "$59.99" or "Free to Play"
    * ```
    */
-  extractMetadata(details: SteamGameDetails): EnrichedGameData {
+  extractMetadata(details: SteamGameDetails, reviewStats?: ReviewStats): EnrichedGameData {
     return {
       steamId: details.appId,
       steamUrl: `https://store.steampowered.com/app/${details.appId}/`,
@@ -35,7 +37,7 @@ export class MetadataExtractor {
       price: this.formatPrice(details.priceOverview, details.isFree),
       releaseDate: details.releaseDate.date || undefined,
       categories: this.extractCategories(details),
-      rating: this.extractRating(details),
+      rating: this.extractRating(details, reviewStats),
       screenshots: this.extractScreenshots(details, DEFAULT_SCREENSHOT_LIMIT),
     };
   }
@@ -123,19 +125,20 @@ export class MetadataExtractor {
    * Extract rating information (Metacritic and Steam)
    *
    * @param details - Steam game details
+   * @param reviewStats - Optional review statistics from Steam Reviews API
    * @returns Combined rating object or undefined if no ratings
    *
    * @example
    * ```typescript
-   * const rating = extractor.extractRating(details);
+   * const rating = extractor.extractRating(details, reviewStats);
    * if (rating?.metacritic) {
    *   console.log(`Metacritic: ${rating.metacritic}/100`);
    * }
    * ```
    */
-  private extractRating(details: SteamGameDetails): Rating | undefined {
+  private extractRating(details: SteamGameDetails, reviewStats?: ReviewStats): Rating | undefined {
     const metacritic = details.metacritic?.score;
-    const steam = this.calculateSteamRating(details.recommendations);
+    const steam = this.calculateSteamRating(details.recommendations, reviewStats);
 
     // Return undefined if no ratings available
     if (!metacritic && !steam) {
@@ -149,34 +152,42 @@ export class MetadataExtractor {
   }
 
   /**
-   * Calculate Steam rating from recommendations
+   * Calculate Steam rating from review statistics
    *
-   * Steam doesn't provide a direct rating percentage, but we can estimate
-   * a positive rating based on total recommendations (simplified approach).
-   * A more accurate implementation would require additional API calls.
+   * Calculates the positive review percentage using data from the Steam Reviews API.
+   * Falls back to recommendations count if review stats are not available.
    *
-   * @param recommendations - Recommendations object from API
+   * @param recommendations - Recommendations object from API (fallback)
+   * @param reviewStats - Review statistics from Steam Reviews API
    * @returns Rating percentage and total count, or undefined if not available
    *
    * @example
    * ```typescript
-   * const steamRating = extractor.calculateSteamRating({ total: 50000 });
-   * // { percent: 85, total: 50000 } (estimated)
+   * const steamRating = extractor.calculateSteamRating({ total: 50000 }, reviewStats);
+   * // { percent: 85, total: 50000 }
    * ```
    */
   calculateSteamRating(
-    recommendations?: SteamGameDetails['recommendations']
+    recommendations?: SteamGameDetails['recommendations'],
+    reviewStats?: ReviewStats
   ): SteamRating | undefined {
-    if (!recommendations || !recommendations.total) {
-      return undefined;
+    // Use review stats if available (contains positive/negative breakdown)
+    if (reviewStats && reviewStats.totalReviews > 0) {
+      const percent = Math.round((reviewStats.totalPositive / reviewStats.totalReviews) * 100);
+      return {
+        percent,
+        total: reviewStats.totalReviews,
+      };
     }
 
-    // Note: Steam Store API doesn't directly provide positive/negative ratio
-    // This is a simplified implementation that returns total recommendations
-    // A production version would need to call additional endpoints for accurate percentage
-    return {
-      percent: 0, // Would need additional API call to get accurate percentage
-      total: recommendations.total,
-    };
+    // Fall back to recommendations (no percentage available without review stats)
+    if (recommendations && recommendations.total > 0) {
+      return {
+        percent: 0, // No percentage available without review stats
+        total: recommendations.total,
+      };
+    }
+
+    return undefined;
   }
 }

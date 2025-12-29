@@ -490,4 +490,145 @@ describe('ApiClient', () => {
       expect(retryAfter).toBeGreaterThan(0);
     });
   });
+
+  describe('getReviewStats', () => {
+    it('should return review statistics when available', async () => {
+      const mockReviewData = {
+        success: 1,
+        query_summary: {
+          num_reviews: 0,
+          review_score: 8,
+          review_score_desc: 'Very Positive',
+          total_positive: 155,
+          total_negative: 5,
+          total_reviews: 160,
+        },
+      };
+
+      mockedAxios.get.mockResolvedValueOnce({
+        data: mockReviewData,
+      });
+
+      const result = await apiClient.getReviewStats('3127230');
+
+      expect(result).toEqual({
+        totalPositive: 155,
+        totalNegative: 5,
+        totalReviews: 160,
+        reviewScore: 8,
+        reviewScoreDesc: 'Very Positive',
+      });
+    });
+
+    it('should return undefined when API returns success: 0', async () => {
+      mockedAxios.get.mockResolvedValueOnce({
+        data: {
+          success: 0,
+        },
+      });
+
+      const result = await apiClient.getReviewStats('9999999');
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined when query_summary is missing', async () => {
+      mockedAxios.get.mockResolvedValueOnce({
+        data: {
+          success: 1,
+          // no query_summary
+        },
+      });
+
+      const result = await apiClient.getReviewStats('1234567');
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined on network error (graceful degradation)', async () => {
+      mockedAxios.get.mockRejectedValueOnce(new Error('Network error'));
+
+      const result = await apiClient.getReviewStats('1091500');
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should call correct endpoint with proper params', async () => {
+      const mockReviewData = {
+        success: 1,
+        query_summary: {
+          num_reviews: 0,
+          review_score: 7,
+          review_score_desc: 'Mostly Positive',
+          total_positive: 2232,
+          total_negative: 278,
+          total_reviews: 2510,
+        },
+      };
+
+      mockedAxios.get.mockResolvedValueOnce({
+        data: mockReviewData,
+      });
+
+      await apiClient.getReviewStats('1137750');
+
+      expect(mockedAxios.get).toHaveBeenCalledWith(
+        'https://store.steampowered.com/appreviews/1137750',
+        {
+          params: {
+            json: 1,
+            language: 'all',
+            purchase_type: 'all',
+            num_per_page: 0,
+          },
+        }
+      );
+    });
+
+    it('should handle games with overwhelmingly positive reviews', async () => {
+      const mockReviewData = {
+        success: 1,
+        query_summary: {
+          num_reviews: 0,
+          review_score: 9,
+          review_score_desc: 'Overwhelmingly Positive',
+          total_positive: 500000,
+          total_negative: 5000,
+          total_reviews: 505000,
+        },
+      };
+
+      mockedAxios.get.mockResolvedValueOnce({
+        data: mockReviewData,
+      });
+
+      const result = await apiClient.getReviewStats('570');
+
+      expect(result?.reviewScoreDesc).toBe('Overwhelmingly Positive');
+      expect(result?.totalPositive).toBe(500000);
+    });
+
+    it('should handle games with negative reviews', async () => {
+      const mockReviewData = {
+        success: 1,
+        query_summary: {
+          num_reviews: 0,
+          review_score: 2,
+          review_score_desc: 'Mostly Negative',
+          total_positive: 100,
+          total_negative: 400,
+          total_reviews: 500,
+        },
+      };
+
+      mockedAxios.get.mockResolvedValueOnce({
+        data: mockReviewData,
+      });
+
+      const result = await apiClient.getReviewStats('123456');
+
+      expect(result?.reviewScoreDesc).toBe('Mostly Negative');
+      expect(result?.totalNegative).toBe(400);
+    });
+  });
 });

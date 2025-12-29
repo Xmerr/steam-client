@@ -61,6 +61,37 @@ interface StoreSearchResponse {
 }
 
 /**
+ * Steam Reviews API response format
+ */
+interface ReviewsApiResponse {
+  success: number;
+  query_summary?: {
+    num_reviews: number;
+    review_score: number;
+    review_score_desc: string;
+    total_positive: number;
+    total_negative: number;
+    total_reviews: number;
+  };
+}
+
+/**
+ * Review statistics for a Steam game
+ */
+export interface ReviewStats {
+  /** Total number of positive reviews */
+  totalPositive: number;
+  /** Total number of negative reviews */
+  totalNegative: number;
+  /** Total number of all reviews */
+  totalReviews: number;
+  /** Review score (0-9, where 9 is Overwhelmingly Positive) */
+  reviewScore: number;
+  /** Review score description (e.g., "Very Positive") */
+  reviewScoreDesc: string;
+}
+
+/**
  * HTTP client with token bucket rate limiting for Steam API
  */
 export class ApiClient {
@@ -319,6 +350,60 @@ export class ApiClient {
         throw error;
       }
       this.handleError(error, `Failed to fetch game details for app ID: ${appId}`);
+    }
+  }
+
+  /**
+   * Fetch review statistics for a game
+   *
+   * Gets review data including positive/negative counts and rating percentage
+   * from the Steam Reviews API. This is separate from the app details endpoint.
+   *
+   * @param appId - Steam application ID
+   * @returns Review statistics including positive/negative counts
+   * @throws {RateLimitError} If rate limit exceeded
+   * @throws {SteamApiError} If API request fails
+   *
+   * @example
+   * ```typescript
+   * const reviews = await client.getReviewStats('1091500');
+   * const percent = Math.round((reviews.totalPositive / reviews.totalReviews) * 100);
+   * console.log(`${percent}% positive reviews`);
+   * ```
+   */
+  async getReviewStats(appId: string): Promise<ReviewStats | undefined> {
+    this.checkRateLimit();
+
+    try {
+      const response = await this.axiosInstance.get<ReviewsApiResponse>(
+        `https://store.steampowered.com/appreviews/${appId}`,
+        {
+          params: {
+            json: 1,
+            language: 'all',
+            purchase_type: 'all',
+            num_per_page: 0,
+          },
+        }
+      );
+
+      if (response.data.success !== 1 || !response.data.query_summary) {
+        return undefined;
+      }
+
+      const summary = response.data.query_summary;
+
+      return {
+        totalPositive: summary.total_positive,
+        totalNegative: summary.total_negative,
+        totalReviews: summary.total_reviews,
+        reviewScore: summary.review_score,
+        reviewScoreDesc: summary.review_score_desc,
+      };
+    } catch (error) {
+      // Review data is not critical - return undefined on error
+      // This allows games without reviews to still work
+      return undefined;
     }
   }
 

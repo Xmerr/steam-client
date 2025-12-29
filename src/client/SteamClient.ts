@@ -219,8 +219,11 @@ export class SteamClient {
     // Get detailed information
     const details = await this.getGameDetails(appId);
 
-    // Extract metadata
-    const enriched = this.metadataExtractor.extractMetadata(details);
+    // Fetch review statistics for accurate rating percentage
+    const reviewStats = await this.apiClient.getReviewStats(appId);
+
+    // Extract metadata with review stats
+    const enriched = this.metadataExtractor.extractMetadata(details, reviewStats);
 
     // Add adult content flag
     enriched.isAdult = this.adultContentDetector.isAdult(details);

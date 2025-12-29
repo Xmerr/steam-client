@@ -208,7 +208,7 @@ describe('MetadataExtractor', () => {
   });
 
   describe('calculateSteamRating', () => {
-    it('should return rating with total recommendations', () => {
+    it('should return rating with total recommendations (no review stats)', () => {
       const rating = extractor.calculateSteamRating({ total: 450000 });
 
       expect(rating).toEqual({
@@ -217,16 +217,133 @@ describe('MetadataExtractor', () => {
       });
     });
 
-    it('should return undefined for missing recommendations', () => {
+    it('should calculate correct percentage from review stats', () => {
+      const reviewStats = {
+        totalPositive: 155,
+        totalNegative: 5,
+        totalReviews: 160,
+        reviewScore: 8,
+        reviewScoreDesc: 'Very Positive',
+      };
+
+      const rating = extractor.calculateSteamRating({ total: 160 }, reviewStats);
+
+      expect(rating).toEqual({
+        percent: 97, // 155/160 = 96.875, rounds to 97
+        total: 160,
+      });
+    });
+
+    it('should calculate percentage for highly positive reviews', () => {
+      const reviewStats = {
+        totalPositive: 2232,
+        totalNegative: 278,
+        totalReviews: 2510,
+        reviewScore: 8,
+        reviewScoreDesc: 'Very Positive',
+      };
+
+      const rating = extractor.calculateSteamRating({ total: 2510 }, reviewStats);
+
+      expect(rating).toEqual({
+        percent: 89, // 2232/2510 = 88.9, rounds to 89
+        total: 2510,
+      });
+    });
+
+    it('should handle 100% positive reviews', () => {
+      const reviewStats = {
+        totalPositive: 1000,
+        totalNegative: 0,
+        totalReviews: 1000,
+        reviewScore: 9,
+        reviewScoreDesc: 'Overwhelmingly Positive',
+      };
+
+      const rating = extractor.calculateSteamRating({ total: 1000 }, reviewStats);
+
+      expect(rating).toEqual({
+        percent: 100,
+        total: 1000,
+      });
+    });
+
+    it('should handle 0% positive reviews', () => {
+      const reviewStats = {
+        totalPositive: 0,
+        totalNegative: 100,
+        totalReviews: 100,
+        reviewScore: 0,
+        reviewScoreDesc: 'Overwhelmingly Negative',
+      };
+
+      const rating = extractor.calculateSteamRating({ total: 100 }, reviewStats);
+
+      expect(rating).toEqual({
+        percent: 0,
+        total: 100,
+      });
+    });
+
+    it('should round percentage to nearest integer', () => {
+      const reviewStats = {
+        totalPositive: 85,
+        totalNegative: 15,
+        totalReviews: 100,
+        reviewScore: 7,
+        reviewScoreDesc: 'Mostly Positive',
+      };
+
+      const rating = extractor.calculateSteamRating({ total: 100 }, reviewStats);
+
+      expect(rating).toEqual({
+        percent: 85,
+        total: 100,
+      });
+    });
+
+    it('should return undefined for missing recommendations and no review stats', () => {
       const rating = extractor.calculateSteamRating(undefined);
 
       expect(rating).toBeUndefined();
     });
 
-    it('should return undefined for zero recommendations', () => {
+    it('should return undefined for zero recommendations and no review stats', () => {
       const rating = extractor.calculateSteamRating({ total: 0 });
 
       expect(rating).toBeUndefined();
+    });
+
+    it('should return undefined when review stats has zero reviews', () => {
+      const reviewStats = {
+        totalPositive: 0,
+        totalNegative: 0,
+        totalReviews: 0,
+        reviewScore: 0,
+        reviewScoreDesc: 'No user reviews',
+      };
+
+      const rating = extractor.calculateSteamRating({ total: 0 }, reviewStats);
+
+      expect(rating).toBeUndefined();
+    });
+
+    it('should prefer review stats over recommendations when both available', () => {
+      const reviewStats = {
+        totalPositive: 155,
+        totalNegative: 5,
+        totalReviews: 160,
+        reviewScore: 8,
+        reviewScoreDesc: 'Very Positive',
+      };
+
+      const rating = extractor.calculateSteamRating({ total: 140 }, reviewStats);
+
+      // Should use reviewStats.totalReviews (160), not recommendations.total (140)
+      expect(rating).toEqual({
+        percent: 97,
+        total: 160,
+      });
     });
   });
 

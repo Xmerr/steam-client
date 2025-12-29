@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2025-12-29
+
+### Fixed
+- **Steam Rating Percentage**: Fixed bug where `rating.steam.percent` always returned `0` instead of actual positive review percentage
+  - Added `getReviewStats()` method to `ApiClient` to fetch review data from Steam Reviews API
+  - Updated `MetadataExtractor.calculateSteamRating()` to calculate percentage from positive/negative review counts
+  - Rating percentage now accurately reflects Steam user reviews (e.g., 97% for PBA Pro Bowling 2026, 89% for Farmer's Life)
+  - Gracefully falls back to `percent: 0` if review statistics are unavailable
+  - Added 14 new tests covering review stats functionality and edge cases
+
+### Technical Details
+- New `ReviewStats` interface with `totalPositive`, `totalNegative`, `totalReviews`, `reviewScore`, and `reviewScoreDesc` fields
+- Steam Reviews API endpoint: `https://store.steampowered.com/appreviews/{appid}`
+- Percentage calculation: `Math.round((totalPositive / totalReviews) * 100)`
+- Review stats fetch respects rate limiting (counted toward 200 requests per 5 minutes)
+- Test coverage increased to 98.98% (from 90.94%)
+
+### Migration Notes
+- No breaking changes - existing code will continue to work
+- Games with review data now return accurate percentages automatically
+- Games without reviews continue to return `percent: 0` as before
+
+---
+
 ## [1.0.0] - 2025-12-25
 
 ### Added
@@ -83,7 +107,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Branch coverage at 73.98% (below 80% target) - primarily uncovered error handling paths
 - Integration tests require manual axios mocking - real API tests need live Steam API key
 - App list cache uses ~15MB memory (150,000 Steam apps)
-- Steam rating percentage not available from Store API (returns 0)
 
 ### Future Enhancements (Planned for v1.1.0+)
 - Improve branch coverage to 85%+ with better integration tests
@@ -97,6 +120,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Version History
+
+### [1.0.2] - 2025-12-29
+- Fixed Steam rating percentage bug (now returns actual percentages)
+- Added review stats functionality with 14 new tests
+- Improved test coverage to 98.98%
 
 ### [1.0.0] - 2025-12-25
 - Initial release with full feature set

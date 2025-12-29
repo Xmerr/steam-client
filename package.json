@@ -1,6 +1,6 @@
 {
   "name": "@xmer/steam-client",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "TypeScript client for Steam Web API with game matching and metadata enrichment",
   "repository": "git@github.com:Xmerr/steam-client.git",
   "main": "dist/index.js",
